@@ -7,32 +7,36 @@
 
 <style>
         .active { fill: blue !important;}
-        /*.datamaps-key dt, .datamaps-key dd {float: none !important;}
-        .datamaps-key {right: -50px; top: 0;}*/
-
+  /*      .datamaps-key dt, .datamaps-key dd {float: none !important;}
+        .datamaps-key {right: -50px; top: 0;}
+*/
 </style>
 <script src="lib/d3/d3.v3.min.js"></script>
 <script src="lib/topojson-master/topojson.js"></script>
-<script src = "lib/datamaps/datamaps-master/dist/datamaps.usa.min.js"></script>
+<script src="lib/datamaps/datamaps-master/dist/datamaps.usa.min.js"></script>
 <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="lib/nouislider.min.js"></script>
+<!-- <script src="lib/nouislider.min.js"></script> NOT ACTUALLY USING THIS RIGHT NOW -->
 
 <body>
 <div class ="sep">
-    <div class = "selector"> 
-    <select id = "source">
-        <option value = "Total Consumption">Total Consumption</option>
-        <option value =  "Biomass">Biomass</option>
-        <option value = "Coal">Coal</option>
-        <option value ="Ethenol">Ethenol</option>
-        <option value = "Geothermal">Geothermal</option>
-        <option value = "Hydropower">Hydropower</option>
-        <option value = "Natural Gas">Natural Gas </option>
-        <option value = "Nuclear Energy">Nuclear Energy</option>
-        <option value = "Petroleum">Petroluem</option>
-        <option value = "Solar">Solar</option>
-    </select>
+    <div class = "selector">
+
+        <select id = "source">
+            <option value = "Total Consumption">Total Consumption</option>
+            <option value =  "Biomass">Biomass</option>
+            <option value = "Coal">Coal</option>
+            <option value ="Ethenol">Ethenol</option>
+            <option value = "Geothermal">Geothermal</option>
+            <option value = "Hydropower">Hydropower</option>
+            <option value = "Natural Gas">Natural Gas </option>
+            <option value = "Nuclear Energy">Nuclear Energy</option>
+            <option value = "Petroleum">Petroluem</option>
+            <option value = "Solar">Solar</option>
+
+        </select>
+    </div>
 </div>
+
 <label for="fader">Year:</label>
 <input type = "range" min="1964" max ="2000" id = "slider" step="1" oninput="outputUpdate(value)">
 <output for = "range" id= "year">1964</output>
@@ -44,6 +48,8 @@
 
 
 <script>
+//define global variables. We need to look at how we want to define min max for each parameter so the map looks better/play around with the colors because the change in energy use isn't apparent.
+
 var value ;
 var attributes = { TotalConsumption : {colorRange : ["#fff7bc","#d95f0e"] , minmax : [0.01573,1.53065] }, //orange red //COLORS GO LIGHT, DARK
     Biomass : {colorRange: ["#e7e1ef","#dd1c77"], minmax : [0.00011,0.1097]}, //pink attributes
@@ -57,7 +63,7 @@ var attributes = { TotalConsumption : {colorRange : ["#fff7bc","#d95f0e"] , minm
     Solar : {colorRange: ["#D3EDCE" ,"#4CA33C"] , minmax : [0, 0.00217]} };
 localStorage.setItem("attributes",JSON.stringify(attributes));
 
-//makes the slider
+//makes the slider - not using this currently; but we need to make the slider look more like a time line and look better in generatr
 function pageload(jQuery){
     // var stepSlider = document.getElementById('slider-step');
 
@@ -78,95 +84,34 @@ function outputUpdate(vol){
     document.querySelector('#year').value = vol;
 }
 
-//figure out how to merge in and create the per capita 
+//more globals
 
 var newdata,
     population = {};
 
-function createpop (pop,year){
-            pop.forEach(function (d){
-            var s = d['State'];
-            var y = d[year];
-            population[s] = y;
-        });
-    return population;
-}
-
-function createseries(data,pop,year,source){
-    // filters the source
-    data = data.filter(function(row){
-        return row['MSN'] == source;
-    })
-    //filters down the year into array
-    data = data.map(function(d) {
-        return {'State': d['State'], 'value': d[year] }; });
-
-    //get the populations for this year
-    population = createpop(pop,year);
-    series = mergedata(data,population);
-
-    // console.log(series);
-    return series;
-
-}
-//merge create pop with the filtered data
-function mergedata(data,population){
-    var newdata = [];
-     data.forEach(function(item){
-            var p = population[item['State']];
-            var v = item['value'];
-            var x = parseFloat((v/p).toFixed(5));
-            newdata.push( [ item['State'] , x ] );
-            });
-    return newdata;
-}
-
-function createdataset (series,crange,minmax){
-
-    var dataset = {};
-
-    // var onlyValues = series.map(function(obj) {return obj[1];} );
-    // var minValue = Math.min.apply(null, onlyValues);
-    // var maxValue = Math.max.apply(null, onlyValues);
-    // console.log(minValue);
-    // console.log(maxValue);
-    console.log(minmax);
-
-    // var src = $('#source').val();
-    // src = src.replace(/\s+/g, '');
-    
-    var paletteScale = d3.scale.sqrt()
-        .domain(minmax)
-        .range(crange);
-
-    series.forEach(function(item){
-          var state = item[0];
-             value = item[1];
-        // dataset[state] = {totalconsumption : value, fill : paletteScale(value) , fillColor : paletteScale(value)};
-        dataset[state] = paletteScale(value);
-    });
-
-    return dataset;
-}
 
 
 
 d3.csv("cleaneddata.csv", function(csv){
     d3.csv('population.csv', function (pop){
-
+        //get current energy source and remove spaces
         var src = $('#source').val();
         src = src.replace(/\s+/g, '');
+
         //reload our data from before
         var reload = localStorage.getItem("attributes");
         attributes = JSON.parse(reload);
+
         //need this for the inital run 
         range = attributes[src]['colorRange'];
-    
+
         //need the min max for initial run 
         minmax=attributes[src]['minmax'];
 
+        //create the series from our data
         series = createseries(csv,pop,"1970","Total Consumption");
 
+        //create the dataset for our map
         dataset = createdataset(series,range, minmax);
         // console.log(dataset);
 
@@ -184,31 +129,80 @@ d3.csv("cleaneddata.csv", function(csv){
         });
     });
 });
-function updatechoropleth(csv,pop,attributes){
-    //get the slider-step and its value
-    var y = $('#slider').val();
-    var year = y.toString();
 
-    //get source from select
-    var source = $('#source').val();
 
-    //get goddamn new attributes
-    var src = $('#source').val();
-        src = src.replace(/\s+/g, '');
+function createseries(data,pop,year,source){
+    // filters the source
+    data = data.filter(function(row){
+        return row['MSN'] == source;
+    })
+    //filters down the year into array
+    data = data.map(function(d) {
+        return {'State': d['State'], 'value': d[year] }; });
 
-    range = attributes[src]['colorRange'];
-    minmax = attributes[src]['minmax'];
+    //get the populations for this year in the format of {'State': 'Population'}
+    population = createpop(pop,year);
+    //merges the data population we just got with the energy usage to create per capita calulation output: [['State','use per capita'],...]
+    series = mergedata(data,population);
 
-    //create the dataset
-    series = createseries(csv,pop,year,source);
     // console.log(series);
-    dataset = createdataset(series,range,minmax);
+    return series;
 
-    window.map.updateChoropleth(dataset);
 }
 
-function createmap(dataset){
+function createpop (pop,year){
+            pop.forEach(function (d){
+            var s = d['State'];
+            var y = d[year];
+            population[s] = y;
+        });
+    return population;
+}
 
+
+//merge create pop with the filtered data
+function mergedata(data,population){
+    var newdata = [];
+     data.forEach(function(item){
+            var p = population[item['State']];
+            var v = item['value'];
+            var x = parseFloat((v/p).toFixed(5));
+            newdata.push( [ item['State'] , x ] );
+            });
+    return newdata;
+}
+
+
+function createdataset (series,crange,minmax){
+    var dataset = {};
+
+    // var onlyValues = series.map(function(obj) {return obj[1];} );
+    // var minValue = Math.min.apply(null, onlyValues);
+    // var maxValue = Math.max.apply(null, onlyValues);
+    // console.log(minValue);
+    // console.log(maxValue);
+    console.log(minmax);
+
+    // var src = $('#source').val();
+    // src = src.replace(/\s+/g, '');
+
+    var paletteScale = d3.scale.sqrt()
+        .domain(minmax)
+        .range(crange);
+
+    series.forEach(function(item){
+          var state = item[0];
+             value = item[1];
+        // dataset[state] = {totalconsumption : value, fill : paletteScale(value) , fillColor : paletteScale(value)};
+        dataset[state] = paletteScale(value);
+    });
+    //returns an array of { "State" : "fill color "}
+    return dataset;
+}
+
+
+function createmap(dataset){
+    //wehre we actually draw the map and the related attributes
     map = new Datamap({
         element: document.getElementById('container'),
         scope: 'usa',
@@ -233,13 +227,37 @@ function createmap(dataset){
     });
 }
 
+//when we update we have change the choropleth NOT redraw the map 
+function updatechoropleth(csv,pop,attributes){
+    //get the slider-step and its value
+    var y = $('#slider').val();
+    var year = y.toString();
+
+    //get source from select
+    var source = $('#source').val();
+
+    //get goddamn new attributes
+    var src = $('#source').val();
+        src = src.replace(/\s+/g, '');
+
+    range = attributes[src]['colorRange'];
+    minmax = attributes[src]['minmax'];
+
+    //create the dataset
+    series = createseries(csv,pop,year,source);
+    // console.log(series);
+    dataset = createdataset(series,range,minmax);
+
+    window.map.updateChoropleth(dataset);
+}
+
+//does any pageload actions 
+
 $(document).ready(pageload);
 
 
 </script>
 
-
-</script>
 
 
 </body>
