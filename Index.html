@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"><title>Slider</title>
+</meta>
+</head>
+<link href="lib/nouislider.min.css" rel="stylesheet">
+
+<style>
+        .active { fill: blue !important;}
+        /*.datamaps-key dt, .datamaps-key dd {float: none !important;}
+        .datamaps-key {right: -50px; top: 0;}*/
+
+</style>
+<script src="lib/d3/d3.v3.min.js"></script>
+<script src="lib/topojson-master/topojson.js"></script>
+<script src = "lib/datamaps/datamaps-master/dist/datamaps.usa.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="lib/nouislider.min.js"></script>
+
+<body>
+<div class ="sep">
+    <div class = "selector"> 
+    <select id = "source">
+        <option value = "Total Consumption">Total Consumption</option>
+        <option value =  "Biomass">Biomass</option>
+        <option value = "Coal">Coal</option>
+        <option value ="Ethenol">Ethenol</option>
+        <option value = "Geothermal">Geothermal</option>
+        <option value = "Hydropower">Hydropower</option>
+        <option value = "Natural Gas">Natural Gas </option>
+        <option value = "Nuclear Energy">Nuclear Energy</option>
+        <option value = "Petroleum">Petroluem</option>
+        <option value = "Solar">Solar</option>
+    </select>
+</div>
+<label for="fader">Year:</label>
+<input type = "range" min="1964" max ="2000" id = "slider" step="1" oninput="outputUpdate(value)">
+<output for = "range" id= "year">1964</output>
+<div id="container" style="position: relative; width: 1000px; height: 600px;"></div>
+
+
+<!-- <div id= "slider-step"></div> -->
+
+
+
+<script>
+var value ;
+var attributes = { TotalConsumption : {colorRange : ["#fff7bc","#d95f0e"] , minmax : [0.01573,1.53065] }, //orange red //COLORS GO LIGHT, DARK
+    Biomass : {colorRange: ["#e7e1ef","#dd1c77"], minmax : [0.00011,0.1097]}, //pink attributes
+    Coal : {colorRange: ["#f0f0f0","#636363"], minmax : [0,1.07544] }, //black
+    Ethenol : {colorRange: ["#fee0d2","#de2d26"], minmax : [0, 0.00399] }, //three tone red
+    Geothermal : {colorRange: ["#e5f5f9", "#2ca25f"] , minmax : [0, 0.01262] }, //teal attributes
+    Hydropower : {colorRange: ["#ece7f2","#2b8cbe"] , minmax : [0 , 0.23124]}, //blue attributes for wind
+    NaturalGas : {colorRange: ["#e0ecf4","#8856a7"], minmax : [0, 0.73337]}, //teal to purple
+    NuclearEnergy : {colorRange: ["#FAD9E3","#FF6694"] , minmax : [0, 0.08904]}, //pink to dark pink
+    Petroleum : {colorRange : ["#DBCDA2","#7A621A"] , minmax : [0.00489, 0.50176]},
+    Solar : {colorRange: ["#D3EDCE" ,"#4CA33C"] , minmax : [0, 0.00217]} };
+localStorage.setItem("attributes",JSON.stringify(attributes));
+
+//makes the slider
+function pageload(jQuery){
+    // var stepSlider = document.getElementById('slider-step');
+
+    // noUiSlider.create(stepSlider, {
+    //     start: 1960,
+    //     orientation: 'horizontal',
+    //     step: 1,
+    //     tooltips: true,
+    //     range: {
+    //         'min': 1960 ,
+    //         'max': 2013
+    //     }
+    // });
+
+}
+
+function outputUpdate(vol){
+    document.querySelector('#year').value = vol;
+}
+
+//figure out how to merge in and create the per capita 
+
+var newdata,
+    population = {};
+
+function createpop (pop,year){
+            pop.forEach(function (d){
+            var s = d['State'];
+            var y = d[year];
+            population[s] = y;
+        });
+    return population;
+}
+
+function createseries(data,pop,year,source){
+    // filters the source
+    data = data.filter(function(row){
+        return row['MSN'] == source;
+    })
+    //filters down the year into array
+    data = data.map(function(d) {
+        return {'State': d['State'], 'value': d[year] }; });
+
+    //get the populations for this year
+    population = createpop(pop,year);
+    series = mergedata(data,population);
+
+    // console.log(series);
+    return series;
+
+}
+//merge create pop with the filtered data
+function mergedata(data,population){
+    var newdata = [];
+     data.forEach(function(item){
+            var p = population[item['State']];
+            var v = item['value'];
+            var x = parseFloat((v/p).toFixed(5));
+            newdata.push( [ item['State'] , x ] );
+            });
+    return newdata;
+}
+
+function createdataset (series,crange,minmax){
+
+    var dataset = {};
+
+    // var onlyValues = series.map(function(obj) {return obj[1];} );
+    // var minValue = Math.min.apply(null, onlyValues);
+    // var maxValue = Math.max.apply(null, onlyValues);
+    // console.log(minValue);
+    // console.log(maxValue);
+    console.log(minmax);
+
+    // var src = $('#source').val();
+    // src = src.replace(/\s+/g, '');
+    
+    var paletteScale = d3.scale.sqrt()
+        .domain(minmax)
+        .range(crange);
+
+    series.forEach(function(item){
+          var state = item[0];
+             value = item[1];
+        // dataset[state] = {totalconsumption : value, fill : paletteScale(value) , fillColor : paletteScale(value)};
+        dataset[state] = paletteScale(value);
+    });
+
+    return dataset;
+}
+
+
+
+d3.csv("cleaneddata.csv", function(csv){
+    d3.csv('population.csv', function (pop){
+
+        var src = $('#source').val();
+        src = src.replace(/\s+/g, '');
+        //reload our data from before
+        var reload = localStorage.getItem("attributes");
+        attributes = JSON.parse(reload);
+        //need this for the inital run 
+        range = attributes[src]['colorRange'];
+    
+        //need the min max for initial run 
+        minmax=attributes[src]['minmax'];
+
+        series = createseries(csv,pop,"1970","Total Consumption");
+
+        dataset = createdataset(series,range, minmax);
+        // console.log(dataset);
+
+        createmap(dataset);
+
+        //whenever the drop down changes
+        $('#source').on('change', function () {
+            updatechoropleth(csv,pop,attributes);
+        })
+
+        //whenever the slider changes 
+        $('#slider').on('input', function(){
+            updatechoropleth(csv,pop,attributes)
+
+        });
+    });
+});
+function updatechoropleth(csv,pop,attributes){
+    //get the slider-step and its value
+    var y = $('#slider').val();
+    var year = y.toString();
+
+    //get source from select
+    var source = $('#source').val();
+
+    //get goddamn new attributes
+    var src = $('#source').val();
+        src = src.replace(/\s+/g, '');
+
+    range = attributes[src]['colorRange'];
+    minmax = attributes[src]['minmax'];
+
+    //create the dataset
+    series = createseries(csv,pop,year,source);
+    // console.log(series);
+    dataset = createdataset(series,range,minmax);
+
+    window.map.updateChoropleth(dataset);
+}
+
+function createmap(dataset){
+
+    map = new Datamap({
+        element: document.getElementById('container'),
+        scope: 'usa',
+        fills: {defaultFill: "#F5F5F5"},
+        data: dataset,
+        geographyConfig: {
+            borderColor: "#DEDEDE",
+            highlightBorderWidth: 2,
+            // highlightFillColor: null;
+            highlightBorderColor: '#000000',
+            popupTemplate: function(geo, data) {
+                // don't show tooltip if country don't present in dataset
+                if (!data) { return ; }
+                // tooltip content
+                return ['<div class="hoverinfo">',
+                    '<strong>', geo.properties.name, '</strong>',
+                    '<br>Consumption: <strong>', window.value, '</strong>',
+                    '</div>'].join('');
+            }
+        }
+
+    });
+}
+
+$(document).ready(pageload);
+
+
+</script>
+
+
+</script>
+
+
+</body>
+</html>
