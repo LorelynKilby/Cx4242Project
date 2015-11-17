@@ -22,11 +22,11 @@
     <div class = "selector">
 
         <select id = "source">
-            <option value = "Total Consumption">Total Consumption</option>
             <option value =  "Biomass">Biomass</option>
             <option value = "Coal">Coal</option>
             <option value ="Ethenol">Ethenol</option>
             <option value = "Geothermal">Geothermal</option>
+            <option value = "Total Consumption">Total Consumption</option>
             <option value = "Hydropower">Hydropower</option>
             <option value = "Natural Gas">Natural Gas </option>
             <option value = "Nuclear Energy">Nuclear Energy</option>
@@ -50,12 +50,12 @@
 <script>
 //define global variables. We need to look at how we want to define min max for each parameter so the map looks better/play around with the colors because the change in energy use isn't apparent.
 
-var value ;
+var values = {};
 var attributes = { TotalConsumption : {colorRange : ["#fff7bc","#d95f0e"] , minmax : [0.01573,1.53065] }, //orange red //COLORS GO LIGHT, DARK
     Biomass : {colorRange: ["#e7e1ef","#dd1c77"], minmax : [0.00011,0.1097]}, //pink attributes
     Coal : {colorRange: ["#f0f0f0","#636363"], minmax : [0,1.07544] }, //black
-    Ethenol : {colorRange: ["#fee0d2","#de2d26"], minmax : [0, 0.00399] }, //three tone red
-    Geothermal : {colorRange: ["#e5f5f9", "#2ca25f"] , minmax : [0, 0.01262] }, //teal attributes
+    Ethenol : {colorRange: ["#e5f5f9", "#2ca25f"], minmax : [0, 0.00399] }, //three tone red
+    Geothermal : {colorRange:  ["#fee0d2","#de2d26"], minmax : [0, 0.01262] }, //teal attributes
     Hydropower : {colorRange: ["#ece7f2","#2b8cbe"] , minmax : [0 , 0.23124]}, //blue attributes for wind
     NaturalGas : {colorRange: ["#e0ecf4","#8856a7"], minmax : [0, 0.73337]}, //teal to purple
     NuclearEnergy : {colorRange: ["#FAD9E3","#FF6694"] , minmax : [0, 0.08904]}, //pink to dark pink
@@ -102,6 +102,7 @@ d3.csv("cleaneddata.csv", function(csv){
         var reload = localStorage.getItem("attributes");
         attributes = JSON.parse(reload);
 
+
         //need this for the inital run 
         range = attributes[src]['colorRange'];
 
@@ -116,6 +117,8 @@ d3.csv("cleaneddata.csv", function(csv){
         // console.log(dataset);
 
         createmap(dataset);
+        updatechoropleth(csv,pop,attributes);
+        
 
         //whenever the drop down changes
         $('#source').on('change', function () {
@@ -140,15 +143,25 @@ function createseries(data,pop,year,source){
     data = data.map(function(d) {
         return {'State': d['State'], 'value': d[year] }; });
 
+    // data = data.map(function(d) {
+    //     return [ d['State'], d[year] ]; });
+
+
     //get the populations for this year in the format of {'State': 'Population'}
     population = createpop(pop,year);
     //merges the data population we just got with the energy usage to create per capita calulation output: [['State','use per capita'],...]
     series = mergedata(data,population);
 
     // console.log(series);
+    // return data;
     return series;
 
 }
+
+// {type:"Polygon",
+// id:"FL",
+// arcs:[[74,75,-2]],
+// properties:{name:"Florida"}}
 
 function createpop (pop,year){
             pop.forEach(function (d){
@@ -175,27 +188,31 @@ function mergedata(data,population){
 
 function createdataset (series,crange,minmax){
     var dataset = {};
+    var values = {};
 
-    // var onlyValues = series.map(function(obj) {return obj[1];} );
-    // var minValue = Math.min.apply(null, onlyValues);
-    // var maxValue = Math.max.apply(null, onlyValues);
+    var onlyValues = series.map(function(obj) {return obj[1];} );
+    var minValue = Math.min.apply(null, onlyValues);
+    var maxValue = Math.max.apply(null, onlyValues);
     // console.log(minValue);
     // console.log(maxValue);
-    console.log(minmax);
+
 
     // var src = $('#source').val();
     // src = src.replace(/\s+/g, '');
 
     var paletteScale = d3.scale.sqrt()
         .domain(minmax)
+        // .domain([minValue,maxValue])
         .range(crange);
 
     series.forEach(function(item){
           var state = item[0];
              value = item[1];
+                values[state] = value;
         // dataset[state] = {totalconsumption : value, fill : paletteScale(value) , fillColor : paletteScale(value)};
         dataset[state] = paletteScale(value);
     });
+
     //returns an array of { "State" : "fill color "}
     return dataset;
 }
@@ -209,25 +226,29 @@ function createmap(dataset){
         fills: {defaultFill: "#F5F5F5"},
         data: dataset,
         geographyConfig: {
-            borderColor: "#DEDEDE",
+            borderwidth: 1,
+            borderColor: "#000000",
             highlightBorderWidth: 2,
-            // highlightFillColor: null;
+            highlightFillColor: '#FF6666',
             highlightBorderColor: '#000000',
+            highlightFillOpacity: 0.5,
             popupTemplate: function(geo, data) {
                 // don't show tooltip if country don't present in dataset
                 if (!data) { return ; }
                 // tooltip content
+
                 return ['<div class="hoverinfo">',
                     '<strong>', geo.properties.name, '</strong>',
-                    '<br>Consumption: <strong>', window.value, '</strong>',
+                    '<br>Consumption: <strong>', values[geo.id], '</strong>',
                     '</div>'].join('');
             }
         }
 
     });
+    map.labels();
 }
 
-//when we update we have change the choropleth NOT redraw the map 
+//when we update we have change the choropleth NOT redraw the map
 function updatechoropleth(csv,pop,attributes){
     //get the slider-step and its value
     var y = $('#slider').val();
