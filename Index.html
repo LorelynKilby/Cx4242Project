@@ -34,6 +34,9 @@
     width: 60%;
     margin-left: 25%;
 }
+.adjust{
+    margin-top: -5px;
+}
 
 body { padding-top: 70px;}
 
@@ -66,6 +69,7 @@ body { padding-top: 70px;}
     <div id="navbar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li class="active"><a href="#">Project Home</a></li>
+        <li><a href = "https://github.com/LorelynKilby/Cx4242Project">GitHub Repo</a></li>
       </ul>
     </div><!--/.nav-collapse -->
   </div>
@@ -94,10 +98,10 @@ body { padding-top: 70px;}
     <div class = "form-group form-group-sm">
     <div class = "row-fluid text-center">
         <div class="col-md-2">
-            <label for="source">Select Energy Source:</label>
+            <b>Select Energy Source:</b>
         </div>
         <div class= "col-md-4">
-            <select class = "form-control" id = "source">
+            <select class = "form-control adjust" id = "source">
                 <option value =  "Biomass">Biomass</option>
                 <option value = "Coal">Coal</option>
                 <option value ="Ethenol">Ethenol</option>
@@ -121,7 +125,7 @@ body { padding-top: 70px;}
 
 <!-- <label for="fader">Year:</label> <output for = "range" id= "year">1964</output>
 <input type = "range" min="1964" max ="2010" id = "slider" step="1" oninput="outputUpdate(value)"> -->
-<p><center>*Drag blue bar to change date*</center></p>
+<!-- <p><center>*Drag blue bar to change date*</center></p> -->
 <div class = "col-md-12">
 <div  class="timeline" id= "visualization"></div>
 </div>
@@ -152,7 +156,7 @@ function pageload(jQuery){
 
   // Create a DataSet (allows two way data-binding)
   var items = new vis.DataSet([
-        {content: 'Energy Policy and Conservation Act', start: '1975', id: 2}, {content: 'Department of Energy Organization Act', start: '1977', id: 3}, {content: '-National Energy Conservation Policy Act', start: '1978', id: 4}, {content: '-Power Plant and Industrial Fuel Use Act', start: '1978', id: 5}, {content: '-Public Utilities Regulatory Policies Act', start: '1978', id: 6}, {content: '-Energy Tax Act', start: '1978', id: 7}, {content: '-Natural Gas Policy Act', start: '1978', id: 8}, {content: '-U.S. Synthetic Fuels Corporation Act', start: '1980', id: 9}, {content: '-Biomass Energy and Alcohol Fuels Act', start: '1980', id: 10}, {content: '-Renewable Energy Resources Act', start: '1980', id: 11}, {content: '-Solar Energy and Energy Conservation Act', start: '1980', id: 12}, {content: '-Geothermal Energy Act', start: '1980', id: 13}, {content: '-Ocean Thermal Energy Conversion Act', start: '1980', id: 14}, {content: 'Nuclear Waste Policy Act', start: '1982', id: 15}, {content: 'Energy Policy Act', start: '1992', id: 16}, {content: 'Energy Policy Act', start: '2005', id: 17}, {content: 'Energy Independence and Security Act', start: '2007', id: 18}, {content: '"-Food', start: '2008', id: 19}, {content: '-Strategic Petroleum Reserve Fill Suspension and Consumer Protection Act', start: '2008', id: 20}, {content: 'The American Recovery and Reinvestment Act of 2009', start: '2009', id: 21}, {content: "Predicted Energy Usage", start: "2014", end: "2020"}
+        {content: 'Energy Policy and Conservation Act', start: '1975', id: 2}, {content: 'Department of Energy Organization Act', start: '1977', id: 3}, {content: '-National Energy Conservation Policy Act', start: '1978', id: 4}, {content: '-Power Plant and Industrial Fuel Use Act', start: '1978', id: 5}, {content: '-Public Utilities Regulatory Policies Act', start: '1978', id: 6}, {content: 'Energy Tax Act', start: '1978', id: 7}, {content: '-Natural Gas Policy Act', start: '1978', id: 8}, {content: 'U.S. Synthetic Fuels Corporation Act', start: '1980', id: 9}, {content: 'Biomass Energy and Alcohol Fuels Act', start: '1980', id: 10}, {content: '-Renewable Energy Resources Act', start: '1980', id: 11}, {content: '-Solar Energy and Energy Conservation Act', start: '1980', id: 12}, {content: 'Geothermal Energy Act', start: '1980', id: 13}, {content: 'Ocean Thermal Energy Conversion Act', start: '1980', id: 14}, {content: 'Nuclear Waste Policy Act', start: '1982', id: 15}, {content: 'Energy Policy Act', start: '1992', id: 16}, {content: 'Energy Policy Act', start: '2005', id: 17}, {content: 'Energy Independence and Security Act', start: '2007', id: 18}, {content: 'Food', start: '2008', id: 19}, {content: 'Strategic Petroleum Reserve Fill Suspension and Consumer Protection Act', start: '2008', id: 20}, {content: 'The American Recovery and Reinvestment Act of 2009', start: '2009', id: 21}, {content: "Predicted Energy Usage", start: "2014", end: "2020"}
   ]);
 
   // Configuration for the Timeline
@@ -164,7 +168,7 @@ function pageload(jQuery){
     //     return Math.round
     // }
     zoomable: false,
-    maxHeight: 200,
+    maxHeight: 180,
     width :'100%',
     margin : {
         item: 20,
@@ -383,7 +387,7 @@ function createmap(dataset){
 
                 return ['<div class="hoverinfo">',
                     '<strong>', geo.properties.name, '</strong>',
-                    '<br>Consumption: <strong>', values[geo.id], '</strong>',
+                    '<br>Use: <strong>', values[geo.id], '</strong>',
                     '</div>'].join('');
             }
         }
