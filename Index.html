@@ -10,18 +10,29 @@
 
 <style>
 .active { fill: blue !important;}
-
+.background{
+    fill: blue;
+}
 .floatTL {
     position: absolute;
-    top: 400px;
+    top: 200px;
+    margin-left: 100px;
 }
 
 .title {
-    font-size: 25px;
+    font-size: 20px;
 }
 .floattitle{
     position: absolute;
-    left: 40%;
+    left: 20%;
+}
+.timeline{
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+.map{
+    width: 60%;
+    margin-left: 25%;
 }
 
 body { padding-top: 70px;}
@@ -50,12 +61,11 @@ body { padding-top: 70px;}
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="http://poloclub.gatech.edu/cse6242/2015fall/">CX4242 - Data Vis</a>
+      <a class="navbar-brand" href="http://poloclub.gatech.edu/cse6242/2015fall/">CX4242 - Data & Visual Analytics</a>
     </div>
     <div id="navbar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Home</a></li>
-        <li><a href="#about">About</a></li>
+        <li class="active"><a href="#">Project Home</a></li>
       </ul>
     </div><!--/.nav-collapse -->
   </div>
@@ -63,7 +73,30 @@ body { padding-top: 70px;}
 
 <div class = "container">
 
-        <div class="form-group">
+    <div class = "col-md-12">
+    <div id= "title" class= "floattitle"></div>
+    </div>
+
+    <div id= "legend" class="floatTL"><legend></div>
+
+
+    <!-- position: relative; width: 1000px; height: 600px; -->
+<!-- <div class = "container-fluid">
+    <div class = "row">
+        <div class= "col-md-12"> -->
+            <div id="container" class="map" height="400px" width="700px" style="height: 400px"> </div>
+<!--         </div>
+    </div>
+</div>
+ -->
+
+<form class = "form-horizontal">
+    <div class = "form-group form-group-sm">
+    <div class = "row-fluid text-center">
+        <div class="col-md-2">
+            <label for="source">Select Energy Source:</label>
+        </div>
+        <div class= "col-md-4">
             <select class = "form-control" id = "source">
                 <option value =  "Biomass">Biomass</option>
                 <option value = "Coal">Coal</option>
@@ -75,33 +108,25 @@ body { padding-top: 70px;}
                 <option value = "Nuclear Energy">Nuclear Energy</option>
                 <option value = "Petroleum">Petroluem</option>
                 <option value = "Solar">Solar</option>
-
             </select>
         </div>
 
+        <div class="col-md-6">
+            <label for="checker">View total CO2 Emissions or BTU's per Capita:</label>
+            <input id="checker" type = "checkbox" data-label-text= "CO2 Emissions" data-on-text="ON" data-handle-width="50" data-size="small" name="my-checkbox">
+        </div>
+    </div>
+    </div>
+</form>
 
 <!-- <label for="fader">Year:</label> <output for = "range" id= "year">1964</output>
 <input type = "range" min="1964" max ="2010" id = "slider" step="1" oninput="outputUpdate(value)"> -->
-
-<div id= "visualization"></div>
-
-<div class= "row row-grid">
-    <div class = "col-xs-6">
-        <input type = "checkbox" data-label-text= "label" data-on-text="CO2 Measures" data-handle-width="50" data-size="mini" name="my-checkbox" checked>
-    </div>
-
+<p><center>*Drag blue bar to change date*</center></p>
+<div class = "col-md-12">
+<div  class="timeline" id= "visualization"></div>
 </div>
 
-<div id= "title" class= "floattitle"></div>
-
-<div id= "legend" class="floatTL"><legend></div>
-
-<div id="container" style = "width: 1200px; height: 600px"> </div>
-<!-- position: relative; width: 1000px; height: 600px; -->
 </div>
-
-
-
 
 <script>
 //define global variables. We need to look at how we want to define min max for each parameter so the map looks better/play around with the colors because the change in energy use isn't apparent.
@@ -127,7 +152,7 @@ function pageload(jQuery){
 
   // Create a DataSet (allows two way data-binding)
   var items = new vis.DataSet([
-        {content: 'Energy Policy and Conservation Act', start: '1975', id: 2}, {content: 'Department of Energy Organization Act', start: '1977', id: 3}, {content: '-National Energy Conservation Policy Act', start: '1978', id: 4}, {content: '-Power Plant and Industrial Fuel Use Act', start: '1978', id: 5}, {content: '-Public Utilities Regulatory Policies Act', start: '1978', id: 6}, {content: '-Energy Tax Act', start: '1978', id: 7}, {content: '-Natural Gas Policy Act', start: '1978', id: 8}, {content: '-U.S. Synthetic Fuels Corporation Act', start: '1980', id: 9}, {content: '-Biomass Energy and Alcohol Fuels Act', start: '1980', id: 10}, {content: '-Renewable Energy Resources Act', start: '1980', id: 11}, {content: '-Solar Energy and Energy Conservation Act', start: '1980', id: 12}, {content: '-Geothermal Energy Act', start: '1980', id: 13}, {content: '-Ocean Thermal Energy Conversion Act', start: '1980', id: 14}, {content: 'Nuclear Waste Policy Act', start: '1982', id: 15}, {content: 'Energy Policy Act', start: '1992', id: 16}, {content: 'Energy Policy Act', start: '2005', id: 17}, {content: 'Energy Independence and Security Act', start: '2007', id: 18}, {content: '"-Food', start: '2008', id: 19}, {content: '-Strategic Petroleum Reserve Fill Suspension and Consumer Protection Act', start: '2008', id: 20}, {content: 'The American Recovery and Reinvestment Act of 2009', start: '2009', id: 21}
+        {content: 'Energy Policy and Conservation Act', start: '1975', id: 2}, {content: 'Department of Energy Organization Act', start: '1977', id: 3}, {content: '-National Energy Conservation Policy Act', start: '1978', id: 4}, {content: '-Power Plant and Industrial Fuel Use Act', start: '1978', id: 5}, {content: '-Public Utilities Regulatory Policies Act', start: '1978', id: 6}, {content: '-Energy Tax Act', start: '1978', id: 7}, {content: '-Natural Gas Policy Act', start: '1978', id: 8}, {content: '-U.S. Synthetic Fuels Corporation Act', start: '1980', id: 9}, {content: '-Biomass Energy and Alcohol Fuels Act', start: '1980', id: 10}, {content: '-Renewable Energy Resources Act', start: '1980', id: 11}, {content: '-Solar Energy and Energy Conservation Act', start: '1980', id: 12}, {content: '-Geothermal Energy Act', start: '1980', id: 13}, {content: '-Ocean Thermal Energy Conversion Act', start: '1980', id: 14}, {content: 'Nuclear Waste Policy Act', start: '1982', id: 15}, {content: 'Energy Policy Act', start: '1992', id: 16}, {content: 'Energy Policy Act', start: '2005', id: 17}, {content: 'Energy Independence and Security Act', start: '2007', id: 18}, {content: '"-Food', start: '2008', id: 19}, {content: '-Strategic Petroleum Reserve Fill Suspension and Consumer Protection Act', start: '2008', id: 20}, {content: 'The American Recovery and Reinvestment Act of 2009', start: '2009', id: 21}, {content: "Predicted Energy Usage", start: "2014", end: "2020"}
   ]);
 
   // Configuration for the Timeline
@@ -139,7 +164,7 @@ function pageload(jQuery){
     //     return Math.round
     // }
     zoomable: false,
-    maxHeight: 150,
+    maxHeight: 200,
     width :'100%',
     margin : {
         item: 20,
@@ -175,6 +200,8 @@ var newdata,
 d3.csv("cleaneddata.csv", function(csv){
     d3.csv('population.csv', function (pop){
         //get current energy source and remove spaces
+
+
         var src = $('#source').val();
         src = src.replace(/\s+/g, '');
 
@@ -182,6 +209,7 @@ d3.csv("cleaneddata.csv", function(csv){
         var reload = localStorage.getItem("attributes");
         attributes = JSON.parse(reload);
 
+        co2 = $('#checker').is(":checked");
 
         //need this for the inital run
         range = attributes[src]['colorRange'];
@@ -190,41 +218,47 @@ d3.csv("cleaneddata.csv", function(csv){
         minmax=attributes[src]['minmax'];
 
         //create the series from our data
-        series = createseries(csv,pop,"1970","Total Consumption");
+        series = createseries(csv,pop,"1970","Total Consumption",true,co2);
 
         //create the dataset for our map
-        dataset = createdataset(series,range, minmax);
+        dataset = createdataset(series,range, minmax, co2);
         // console.log(dataset);
 
         createmap(dataset);
         var changelegend = true;
-        updatechoropleth(csv,pop,attributes,changelegend);
+
+        updatechoropleth(csv,pop,attributes,changelegend, co2);
 
         timeline.on('timechange', function(event){
             time = String(event.time);
             year = time.split(" ")[3]
-            // console.log(year);
             changelegend = false;
-            updatechoropleth(csv,pop,attributes,changelegend)
+            updatechoropleth(csv,pop,attributes,changelegend,co2)
         });
 
         //whenever the drop down changes
         $('#source').on('change', function () {
             changelegend = true;
-            updatechoropleth(csv,pop,attributes, changelegend);
+            updatechoropleth(csv,pop,attributes, changelegend,co2);
         })
 
-        //whenever the slider changes 
-        $('#slider').on('input', function(){
-            changelegend = false;
-            updatechoropleth(csv,pop,attributes, changelegend)
+        // //whenever the slider changes 
+        // $('#slider').on('input', function(){
+        //     changelegend = false;
+        //     updatechoropleth(csv,pop,attributes, changelegend)
+        // });
 
+        $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+         co2 = state;
+         changelegend = true;
+         updatechoropleth(csv,pop,attributes,changelegend,co2)
         });
+
     });
 });
 
 
-function createseries(data,pop,year,source){
+function createseries(data,pop,year,source,co2,multiplier){
     // filters the source
     data = data.filter(function(row){
         return row['MSN'] == source;
@@ -233,14 +267,20 @@ function createseries(data,pop,year,source){
     data = data.map(function(d) {
         return {'State': d['State'], 'value': d[year] }; });
 
-    // data = data.map(function(d) {
-    //     return [ d['State'], d[year] ]; });
+    if(co2){
+        data = data.map(function(d) {
+            x = d['value'] * multiplier;
+            return [ d['State'], x ];
+         });
 
-
-    //get the populations for this year in the format of {'State': 'Population'}
-    population = createpop(pop,year);
-    //merges the data population we just got with the energy usage to create per capita calulation output: [['State','use per capita'],...]
-    series = mergedata(data,population);
+        series = data
+    }
+    else{
+        //get the populations for this year in the format of {'State': 'Population'}
+        population = createpop(pop,year);
+        //merges the data population we just got with the energy usage to create per capita calulation output: [['State','use per capita'],...]
+        series = mergedata(data,population);
+    }
 
     // console.log(series);
     // return data;
@@ -276,16 +316,26 @@ function mergedata(data,population){
     return newdata;
 }
 
-
-function createdataset (series,crange,minmax){
-    var dataset = {};
-    // var values = {};
-
+function getmax(series){
     var onlyValues = series.map(function(obj) {return obj[1];} );
     var minValue = Math.min.apply(null, onlyValues);
     var maxValue = Math.max.apply(null, onlyValues);
+    return [minValue,maxValue];
+
+}
+
+
+function createdataset (series,crange,minmax,co2){
+    var dataset = {};
+    // var values = {};
+
     // console.log(minValue);
     // console.log(maxValue);
+    console.log(co2)
+    if(co2){
+        minmax = getmax(series);
+        console.log(minmax)
+    }
 
 
     // var src = $('#source').val();
@@ -301,12 +351,9 @@ function createdataset (series,crange,minmax){
              value = item[1];
              values[state] = value;
         // dataset[state] = {totalconsumption : value, fill : paletteScale(value) , fillColor : paletteScale(value)};
-            if (value == 0) {
-                dataset[state] = "#ffffff"
-            }
-            else {
-            dataset[state] = paletteScale(value);
-            }
+    
+    dataset[state] = paletteScale(value);
+
     });
 
     //returns an array of { "State" : "fill color "}
@@ -321,6 +368,7 @@ function createmap(dataset){
         scope: 'usa',
         fills: {defaultFill: "#F5F5F5"},
         data: dataset,
+        responsive: false,
         geographyConfig: {
             borderwidth: 1,
             borderColor: "#000000",
@@ -339,8 +387,9 @@ function createmap(dataset){
                     '</div>'].join('');
             }
         }
-
-
+    });
+    d3.select(window).on('resize', function() {
+        map.resize();
     });
     var margin = {top: 20, right: 10, bottom: 40, left: 60};
     var width = 100 - margin.left - margin.right,
@@ -358,11 +407,10 @@ function createmap(dataset){
 }
 
 //when we update we have change the choropleth NOT redraw the map
-function updatechoropleth(csv,pop,attributes,changelegend){
+function updatechoropleth(csv,pop,attributes,changelegend,co2){
     // get the slider-step and its value
     var date = String(timeline.getCustomTime());
     var year = date.split(" ")[3];
-    
 
     //get source from select
     var source = $('#source').val();
@@ -371,16 +419,33 @@ function updatechoropleth(csv,pop,attributes,changelegend){
     var src = $('#source').val();
         src = src.replace(/\s+/g, '');
 
+    multiplier = attributes[src]['poundsco2']
     range = attributes[src]['colorRange'];
     minmax = attributes[src]['minmax'];
     bucket = minmax[1]/6;
+    bucket = bucket.toFixed(4);
     m = minmax[0]
-    buckets = [ m, m + bucket, m + 2*bucket, m + 3*bucket, m+ 4* bucket, m + 5*bucket]
-    console.log(buckets);
+    message = " BTU's per Capita"
+    buckets = [ m, m + 1*bucket, m + 2*bucket, m + 3*bucket, m+ 4* bucket, m + 5*bucket]
+
     //create the dataset
-    series = createseries(csv,pop,year,source);
+    series = createseries(csv,pop,year,source,co2,multiplier);
+
+    if(co2){
+        minmax = getmax(series);
+        bucket = Math.round(minmax[1]/6);
+        m = Math.round(minmax[0]);
+        buckets = [ m, m + 1*bucket, m + 2*bucket, m + 3*bucket, m+ 4* bucket, m + 5*bucket]
+        message = " in Pounds emitted CO2"
+
+    }
+    prefix = ""
+    if(year >= 2014){
+        prefix = "Predicted "
+
+    }
     // console.log(series);
-    dataset = createdataset(series,range,minmax);
+    dataset = createdataset(series,range,minmax,co2);
 
     if (changelegend){
         d3.select("#spot").selectAll(".legend").remove()
@@ -395,7 +460,7 @@ function updatechoropleth(csv,pop,attributes,changelegend){
                 .attr("class","title")
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
-                .text(source + " Use by State in " + year);
+                .text( prefix +source + " Energy use by State in " + year + message);
 
 
     window.map.updateChoropleth(dataset);
@@ -431,7 +496,7 @@ function updatelegend(minmax, range){
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
                 .text(function (d , i) {
-                return  d.toFixed(4) + " <";
+                return  d + " <";
             });
     }
 }
