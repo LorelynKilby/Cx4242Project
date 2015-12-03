@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<meta charset="utf-8"><title>Slider</title>
+<meta charset="utf-8"><title>CX 4242 Team 28 Final Project</title>
 </meta>
 </head>
 <link href = "lib/bootstrap/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel= "stylesheet">
@@ -39,6 +39,11 @@
 }
 .vis-item.vis-background.negative {
   background-color: rgba(255, 0, 0, 0.2);
+}
+.adust3{
+    padding-top: -40px;
+    margin-right: 400px;
+    width: 60%;
 }
 
 body { padding-top: 70px;}
@@ -107,7 +112,7 @@ body { padding-top: 70px;}
             <select class = "form-control adjust" id = "source">
                 <option value =  "Biomass">Biomass</option>
                 <option value = "Coal">Coal</option>
-                <option value ="Ethenol">Ethenol</option>
+                <option value = "Ethenol">Ethenol</option>
                 <option value = "Geothermal">Geothermal</option>
                 <option value = "Total Consumption">Total Consumption</option>
                 <option value = "Hydropower">Hydropower</option>
@@ -117,10 +122,11 @@ body { padding-top: 70px;}
                 <option value = "Solar">Solar</option>
             </select>
         </div>
-
-        <div class="col-md-6">
-            <label for="checker">View total CO2 Emissions or BTU's per Capita:</label>
-            <input id="checker" type = "checkbox" data-label-text= "CO2 Emissions" data-on-text="ON" data-handle-width="50" data-size="small" name="my-checkbox">
+        <div class="col-md-1">
+            <b>View As :</b>
+        </div>
+        <div class="col-md-3 adjust">
+            <input id="checker" type = "checkbox" data-label-text= "" data-on-text="Pounds CO2/BTU" data-off-text="BTU's per Capita" data-handle-width="100" data-size="small" data-label-width= "50" name="my-checkbox">
         </div>
     </div>
     </div>
@@ -139,16 +145,16 @@ body { padding-top: 70px;}
 //define global variables. We need to look at how we want to define min max for each parameter so the map looks better/play around with the colors because the change in energy use isn't apparent.
 
 
-var attributes = { TotalConsumption : {poundsco2: 86.5, colorRange : ["#fff7bc","#d95f0e"] , minmax : [0.01573,1.53065] }, //orange red //COLORS GO LIGHT, DARK
-    Biomass : {poundsco2: 213, colorRange: ["#e7e1ef","#dd1c77"], minmax : [0.00011,0.1097]}, //pink attributes
-    Coal : {poundsco2: 215, colorRange: ["#f0f0f0","#636363"], minmax : [0,1.07544] }, //black
-    Ethenol : {poundsco2: 60, colorRange: ["#e5f5f9", "#2ca25f"], minmax : [0, 0.00399] }, //three tone red
-    Geothermal : {poundsco2: 16.5, colorRange:  ["#fee0d2","#de2d26"], minmax : [0, 0.01262] }, //teal attributes
-    Hydropower : {poundsco2: 0, colorRange: ["#ece7f2","#2b8cbe"] , minmax : [0 , 0.23124]}, //blue attributes for wind
-    NaturalGas : {poundsco2: 117, colorRange: ["#e0ecf4","#8856a7"], minmax : [0, 0.73337]}, //teal to purple
-    NuclearEnergy : {poundsco2: 0, colorRange: ["#FAD9E3","#FF6694"] , minmax : [0, 0.08904]}, //pink to dark pink
-    Petroleum : {poundsco2:157, colorRange : ["#DBCDA2","#7A621A"] , minmax : [0.00489, 0.50176]},
-    Solar : {poundsco2: 0, colorRange: ["#D3EDCE" ,"#4CA33C"] , minmax : [0, 0.00217]} };
+var attributes = { TotalConsumption : {poundsco2: 86.5, colorRange : ["#fff7bc","#d95f0e"] , minmax : [0.01573,1.53065], btuMinMax: [5632534,1275512306]}, //orange red //COLORS GO LIGHT, DARK
+    Biomass : {poundsco2: 213, colorRange: ["#e7e1ef","#dd1c77"], minmax : [0.00011,0.1097], btuMinMax: [ 43878 , 31386189] }, //pink attributes
+    Coal : {poundsco2: 215, colorRange: ["#f0f0f0","#636363"], minmax : [0,1.07544] ,btuMinMax: [0, 480431045] }, //black
+    Ethenol : {poundsco2: 60, colorRange: ["#e5f5f9", "#2ca25f"], minmax : [0, 0.00399], btuMinMax: [0,7625220]}, //three tone red
+    Geothermal : {poundsco2: 16.5, colorRange:  ["#fee0d2","#de2d26"], minmax : [0, 0.01262] ,btuMinMax: [0, 1401972]}, //teal attributes
+    Hydropower : {poundsco2: 0, colorRange: ["#ece7f2","#2b8cbe"] , minmax : [0 , 0.23124] ,btuMinMax:[0,1063894]}, //blue attributes for wind
+    NaturalGas : {poundsco2: 117, colorRange: ["#e0ecf4","#8856a7"], minmax : [0, 0.73337], btuMinMax:[0,555295455]}, //teal to pur0ple
+    NuclearEnergy : {poundsco2: 0, colorRange: ["#FAD9E3","#FF6694"] , minmax : [0, 0.08904] , btuMinMax:[0, 1297557]}, //pink to dark pink
+    Petroleum : {poundsco2:157, colorRange : ["#DBCDA2","#7A621A"] , minmax : [0.00489, 0.50176] , btuMinMax:[31400,1156753863]},
+    Solar : {poundsco2: 0, colorRange: ["#D3EDCE" ,"#4CA33C"] , minmax : [0, 0.00217]} , btuMinMax:[0, 109342] };
 localStorage.setItem("attributes",JSON.stringify(attributes));
 
 //makes the slider - not using this currently; but we need to make the slider look more like a time line and look better in generatr
@@ -156,10 +162,28 @@ function pageload(jQuery){
   $("[name='my-checkbox']").bootstrapSwitch();
 
   var container = document.getElementById('visualization');
-
+var item7 = 'item7<br><a href="http://visjs.org" target="_blank">click here</a>';
   // Create a DataSet (allows two way data-binding)
   var items = new vis.DataSet([
-        {content: 'Energy Policy and Conservation Act', start: '1975', id: 2}, {content: 'Department of Energy Organization Act', start: '1977', id: 3}, {content: 'National Energy Conservation Policy Act', start: '1978', id: 4}, {content: 'Power Plant and Industrial Fuel Use Act', start: '1978', id: 5}, {content: '-Public Utilities Regulatory Policies Act', start: '1978', id: 6}, {content: 'Energy Tax Act', start: '1978', id: 7}, {content: 'Natural Gas Policy Act', start: '1978', id: 8}, {content: 'U.S. Synthetic Fuels Corporation Act', start: '1980', id: 9}, {content: 'Biomass Energy and Alcohol Fuels Act', start: '1980', id: 10}, {content: 'Renewable Energy Resources Act', start: '1980', id: 11}, {content: 'Solar Energy and Energy Conservation Act', start: '1980', id: 12}, {content: 'Geothermal Energy Act', start: '1980', id: 13}, {content: 'Ocean Thermal Energy Conversion Act', start: '1980', id: 14}, {content: 'Nuclear Waste Policy Act', start: '1982', id: 15}, {content: 'Energy Policy Act', start: '1992', id: 16}, {content: 'Energy Policy Act', start: '2005', id: 17}, {content: 'Energy Independence and Security Act', start: '2007', id: 18}, {content: 'Food', start: '2008', id: 19}, {content: 'Strategic Petroleum Reserve Fill Suspension and Consumer Protection Act', start: '2008', id: 20}, {content: 'The American Recovery and Reinvestment Act of 2009', start: '2009', id: 21}, {content: "Predictions",type: "background" ,start: "2014", end: "2020", className: 'negative'}
+        {content: '<a href target="_blank" = "https://www.congress.gov/bill/94th-congress/senate-bill/622">Energy Policy and Conservation Act</a>', start: '1975', id: 2},
+        {content: '<a href target="_blank"= "https://www.congress.gov/bill/95th-congress/senate-bill/826">Department of Energy Organization Act</a>', start: '1977', id: 3},
+        {content: '<a href target="_blank"= "https://www.congress.gov/bill/95th-congress/house-bill/5037">National Energy Conservation Policy Act</a>', start: '1978', id: 4},
+        {content: '<a href target="_blank"="https://www.congress.gov/bill/95th-congress/house-bill/5146">Power Plant and Industrial Fuel Use Act</a>', start: '1978', id: 5}, 
+        {content: '<a href target="_blank"= "http://energy.gov/oe/services/electricity-policy-coordination-and-implementation/other-regulatory-efforts/public">Public Utilities Regulatory Policies Act</a>', start: '1978', id: 6}, 
+        {content: '<a href target="_blank"= "https://www.congress.gov/bill/95th-congress/house-bill/5263">Energy Tax Act</a>', start: '1978', id: 7},
+        {content: '<a href target="_blank"= "http://www.eia.gov/oil_gas/natural_gas/analysis_publications/ngmajorleg/ngact1978.html">Natural Gas Policy Act<a/>', start: '1978', id: 8}, 
+        {content: '<a href target="_blank" = "http://www.archives.gov/federal-register/codification/executive-order/12346.html">U.S. Synthetic Fuels Corporation Act</a>', start: '1982', id: 9}, 
+        {content: '<a href target="_blank"="http://uscode.house.gov/view.xhtml?path=/prelim@title42/chapter96&edition=prelim">Biomass Energy and Alcohol Fuels Act</a>', start: '1980', id: 10}, 
+        {content: '<a href target="_blank" = "https://www.law.cornell.edu/uscode/text/42/7371">Renewable Energy Resources Act</a>', start: '1980', id: 11}, 
+        {content: '<a href target="_blank"= "http://definitions.uslegal.com/s/solar-energy-and-energy-conservation-act%20/">Solar Energy and Energy Conservation Act</a>', start: '1980', id: 12}, 
+        {content: '<a href target="_blank" = "http://www.eoearth.org/view/article/154988/">Ocean Thermal Energy Conversion Act</a>', start: '1980', id: 14}, 
+        {content: '<a href target="_blank"= "http://www2.epa.gov/laws-regulations/summary-nuclear-waste-policy-act">Nuclear Waste Policy Act</a>', start: '1982', id: 15}, 
+        {content: '<a href target="_blank" = "http://www.afdc.energy.gov/laws/key_legislation">Energy Policy Act of 1992</a>', start: '1992', id: 16}, 
+        {content: '<a href target="_blank"= "http://www2.epa.gov/laws-regulations/summary-energy-policy-act">Energy Policy Act of 2005</a>', start: '2005', id: 17}, 
+        {content: '<a href target="_blank" = "https://www.congress.gov/bill/110th-congress/house-bill/6">Energy Independence and Security Act</a>', start: '2007', id: 18}, 
+        {content: '<a href target="_blank"= "https://www.govtrack.us/congress/bills/110/hr6022">Strategic Petroleum Reserve Fill Suspension and Consumer Protection Act</a>', start: '2008', id: 20}, 
+        {content: '<a href target="_blank" = "https://www.irs.gov/uac/The-American-Recovery-and-Reinvestment-Act-of-2009:-Information-Center">The American Recovery and Reinvestment Act of 2009</a>', start: '2009', id: 21}, 
+        {content: "Predictions",type: "background" ,start: "2014", end: "2020", className: 'negative'}
   ]);
 
   // Configuration for the Timeline
@@ -171,7 +195,7 @@ function pageload(jQuery){
     //     return Math.round
     // }
     showCurrentTime: false,
-    zoomable: true,
+    zoomable: false,
     maxHeight: 180,
     width :'100%',
     margin : {
@@ -340,10 +364,9 @@ function createdataset (series,crange,minmax,co2){
     // console.log(minValue);
     // console.log(maxValue);
     console.log(co2)
-    if(co2){
-        minmax = getmax(series);
-        console.log(minmax)
-    }
+    // if(co2){
+    //     minmax = getmax(series);
+    // }
 
 
     // var src = $('#source').val();
@@ -428,6 +451,7 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
         src = src.replace(/\s+/g, '');
 
     multiplier = attributes[src]['poundsco2']
+    console.log("multiplier", multiplier)
     range = attributes[src]['colorRange'];
     minmax = attributes[src]['minmax'];
     bucket = minmax[1]/6;
@@ -440,7 +464,12 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
     series = createseries(csv,pop,year,source,co2,multiplier);
 
     if(co2){
-        minmax = getmax(series);
+        if (multiplier == 0){
+            alert("Energy Source does Not Emit CO2")
+            document.getElementById("source").value = "Total Consumption"
+            
+        }
+        minmax = attributes[src]["btuMinMax"];
         bucket = Math.round(minmax[1]/6);
         m = Math.round(minmax[0]);
         buckets = [ m, m + 1*bucket, m + 2*bucket, m + 3*bucket, m+ 4* bucket, m + 5*bucket]
@@ -449,9 +478,10 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
     }
     prefix = ""
     if(year >= 2014){
-        prefix = "Predicted "
+        prefix = "Predicted  "
 
     }
+    console.log(minmax)
     // console.log(series);
     dataset = createdataset(series,range,minmax,co2);
 
