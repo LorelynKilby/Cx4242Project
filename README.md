@@ -5,34 +5,27 @@ Resource For the Datamap library we are using:
 
 https://github.com/markmarkoh/datamaps/blob/master/README.md#getting-started
 
+To view Project:
 
-Things Left To Do: 
+1. Download Project Zip
+2. Extract All Contents
+3. Open "Index.html" in a updated browser ( developed in Mozilla Firefox)
 
-So if you're familiar to Git Hub; feel free to branch off master and play aroudn with things! If not; I wouldn't bother trying to get to know it; Just download the whole directory, make changes, communicate them then I'll help update the "master" directory.
+All interactions are made through this 
 
-Tasks: 
-
-	Visualization:
-
-- Make the tooltip reflect the value for each state
-
-Will involve making a global dictionary thats updated during "updatechoropleth()" to values like {'ALASKA':'Value'} 
-
-- Take a look at our per-capita values
-
-For some the min is negative... plus its really hard to see color differences with such a small set. Alot of things look like we weren't using any energy until the 80s
-
-
--Fix highlight color 
-
-Right now it highlights orange; I just want the border highlighted
+Contents:
+    /Doc
+        team28report.pdf - final report
+        team28poster.pdf - final poster
+    /lib - contains all file dependencies and libraries (jquery, d3, datamaps, topojson, bootstrap, etc.)
+    /Predictions - contains all files created using our regression python script with value predictions
+    /Regression Records - contains all files created using regression python script with records of regression coeffecients for each state/source combo
+    Index.html - main project file 
+    PopulationRegression.py - script to predict future populations 
+    RegressionPredictions.py - script to calculate predictions for enery use 
+    cleaneddata.csv - main file containing enery use data across years 
+    policies.csv - brief file containing policies referenced 
+    population.csv - contains state populations by year
 
 
-- Still need population data 1960 - 1964 (or we just forget those years, whatever) 
-
-CSS-Tasks: 
-
-1. Make slider actual time line; incorporate the energy events 
-
-2. Make the page look pretty (possibly using bootstrap (css library for rapid site development (our class website uses it ))) 
 

@@ -79,7 +79,7 @@ body { padding-top: 70px;}
         <li class="active"><a href="#">Project Home</a></li>
         <li><a href = "https://github.com/LorelynKilby/Cx4242Project">GitHub Repo</a></li>
       </ul>
-    </div><!--/.nav-collapse -->
+    </div>
   </div>
 </nav>
 
@@ -92,15 +92,8 @@ body { padding-top: 70px;}
     <div id= "legend" class="floatTL"><legend></div>
 
 
-    <!-- position: relative; width: 1000px; height: 600px; -->
-<!-- <div class = "container-fluid">
-    <div class = "row">
-        <div class= "col-md-12"> -->
-            <div id="container" class="map" height="400px" width="700px" style="height: 400px"> </div>
-<!--         </div>
-    </div>
-</div>
- -->
+
+<div id="container" class="map" height="400px" width="700px" style="height: 400px"> </div>
 
 <form class = "form-horizontal">
     <div class = "form-group form-group-sm">
@@ -132,9 +125,6 @@ body { padding-top: 70px;}
     </div>
 </form>
 
-<!-- <label for="fader">Year:</label> <output for = "range" id= "year">1964</output>
-<input type = "range" min="1964" max ="2010" id = "slider" step="1" oninput="outputUpdate(value)"> -->
-<!-- <p><center>*Drag blue bar to change date*</center></p> -->
 <div class = "col-md-12">
 <div  class="timeline" id= "visualization"></div>
 </div>
@@ -157,14 +147,15 @@ var attributes = { TotalConsumption : {poundsco2: 86.5, colorRange : ["#fff7bc",
     Solar : {poundsco2: 0, colorRange: ["#D3EDCE" ,"#4CA33C"] , minmax : [0, 0.00217]} , btuMinMax:[0, 109342] };
 localStorage.setItem("attributes",JSON.stringify(attributes));
 
-//makes the slider - not using this currently; but we need to make the slider look more like a time line and look better in generatr
+
 function pageload(jQuery){
+// create toggle switch
   $("[name='my-checkbox']").bootstrapSwitch();
 
-  var container = document.getElementById('visualization');
-var item7 = 'item7<br><a href="http://visjs.org" target="_blank">click here</a>';
-  // Create a DataSet (allows two way data-binding)
-  var items = new vis.DataSet([
+    var container = document.getElementById('visualization');
+
+  // Create a DataSet (all hrefs link to external webpage) 
+     var items = new vis.DataSet([
         {content: '<a href target="_blank" = "https://www.congress.gov/bill/94th-congress/senate-bill/622">Energy Policy and Conservation Act</a>', start: '1975', id: 2},
         {content: '<a href target="_blank"= "https://www.congress.gov/bill/95th-congress/senate-bill/826">Department of Energy Organization Act</a>', start: '1977', id: 3},
         {content: '<a href target="_blank"= "https://www.congress.gov/bill/95th-congress/house-bill/5037">National Energy Conservation Policy Act</a>', start: '1978', id: 4},
@@ -191,9 +182,6 @@ var item7 = 'item7<br><a href="http://visjs.org" target="_blank">click here</a>'
     max : "2020",
     min : "1964",
     stack: true,
-    // snap: function(date,scale,step){
-    //     return Math.round
-    // }
     showCurrentTime: false,
     zoomable: false,
     maxHeight: 180,
@@ -205,7 +193,6 @@ var item7 = 'item7<br><a href="http://visjs.org" target="_blank">click here</a>'
         scale: 'year',
         step: 2
     }
-
 
   };
 
@@ -228,7 +215,7 @@ var newdata,
 
 
 
-
+//bulk of recursion occurs here
 d3.csv("cleaneddata.csv", function(csv){
     d3.csv('population.csv', function (pop){
         //get current energy source and remove spaces
@@ -260,7 +247,7 @@ d3.csv("cleaneddata.csv", function(csv){
         var changelegend = true;
 
         updatechoropleth(csv,pop,attributes,changelegend, co2);
-
+        //whenever timeline custom date is changed
         timeline.on('timechange', function(event){
             time = String(event.time);
             year = time.split(" ")[3]
@@ -273,13 +260,7 @@ d3.csv("cleaneddata.csv", function(csv){
             changelegend = true;
             updatechoropleth(csv,pop,attributes, changelegend,co2);
         })
-
-        // //whenever the slider changes 
-        // $('#slider').on('input', function(){
-        //     changelegend = false;
-        //     updatechoropleth(csv,pop,attributes, changelegend)
-        // });
-
+        //whenever toggle switch is activated
         $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
          co2 = state;
          changelegend = true;
@@ -314,16 +295,11 @@ function createseries(data,pop,year,source,co2,multiplier){
         series = mergedata(data,population);
     }
 
-    // console.log(series);
-    // return data;
+  
     return series;
 
 }
 
-// {type:"Polygon",
-// id:"FL",
-// arcs:[[74,75,-2]],
-// properties:{name:"Florida"}}
 
 function createpop (pop,year){
             pop.forEach(function (d){
@@ -347,7 +323,7 @@ function mergedata(data,population){
 
     return newdata;
 }
-
+//Get min/max of any series
 function getmax(series){
     var onlyValues = series.map(function(obj) {return obj[1];} );
     var minValue = Math.min.apply(null, onlyValues);
@@ -359,18 +335,9 @@ function getmax(series){
 
 function createdataset (series,crange,minmax,co2){
     var dataset = {};
-    // var values = {};
 
-    // console.log(minValue);
-    // console.log(maxValue);
     console.log(co2)
-    // if(co2){
-    //     minmax = getmax(series);
-    // }
 
-
-    // var src = $('#source').val();
-    // src = src.replace(/\s+/g, '');
 
     var paletteScale = d3.scale.sqrt()
         .domain(minmax)
@@ -381,7 +348,6 @@ function createdataset (series,crange,minmax,co2){
           var state = item[0];
              value = item[1];
              values[state] = value;
-        // dataset[state] = {totalconsumption : value, fill : paletteScale(value) , fillColor : paletteScale(value)};
     
     dataset[state] = paletteScale(value);
 
@@ -408,7 +374,7 @@ function createmap(dataset){
             highlightBorderColor: '#000000',
             highlightFillOpacity: 0.5,
             popupTemplate: function(geo, data) {
-                // don't show tooltip if country don't present in dataset
+                // don't show tooltip if country don't present in dataset - tooltip offset because of screen size :( )
                 if (!data) { return ; }
                 // tooltip content
 
@@ -419,6 +385,7 @@ function createmap(dataset){
             }
         }
     });
+
     d3.select(window).on('resize', function() {
         map.resize();
     });
@@ -468,10 +435,6 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
     series = createseries(csv,pop,year,source,co2,multiplier);
 
     if(co2){
-        if (multiplier == 0){
-            // alert("Energy Source does Not Emit CO2")
-
-        }
         minmax = attributes[src]["btuMinMax"];
         bucket = Math.round(minmax[1]/6);
         m = Math.round(minmax[0]);
@@ -503,7 +466,7 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
                 .style("text-anchor", "end")
                 .text( prefix +source + " Energy usage by State in " + year + message);
 
-
+    //actually updates choropleth
     window.map.updateChoropleth(dataset);
 
 function updatelegend(minmax, range){
