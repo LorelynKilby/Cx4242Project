@@ -414,7 +414,7 @@ function createmap(dataset){
 
                 return ['<div class="hoverinfo">',
                     '<strong>', geo.properties.name, '</strong>',
-                    '<br>Use: <strong>', values[geo.id], '</strong>',
+                    '<br>Usage: <strong>', values[geo.id], '</strong>',
                     '</div>'].join('');
             }
         }
@@ -449,25 +449,28 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
     //get goddamn new attributes
     var src = $('#source').val();
         src = src.replace(/\s+/g, '');
-
+    //grab BTU to CO2 multiplier
     multiplier = attributes[src]['poundsco2']
-    console.log("multiplier", multiplier)
+    //color range
     range = attributes[src]['colorRange'];
+    //minmax if co2 is false
     minmax = attributes[src]['minmax'];
+    //creates buckets for legend
     bucket = minmax[1]/6;
     bucket = bucket.toFixed(4);
     m = minmax[0]
     message = " BTU's per Capita"
     buckets = [ m, m + 1*bucket, m + 2*bucket, m + 3*bucket, m+ 4* bucket, m + 5*bucket]
-
+    for(var i in buckets){
+        buckets[i] = buckets[i].toFixed(4)
+    }
     //create the dataset
     series = createseries(csv,pop,year,source,co2,multiplier);
 
     if(co2){
         if (multiplier == 0){
-            alert("Energy Source does Not Emit CO2")
-            document.getElementById("source").value = "Total Consumption"
-            
+            // alert("Energy Source does Not Emit CO2")
+
         }
         minmax = attributes[src]["btuMinMax"];
         bucket = Math.round(minmax[1]/6);
@@ -498,7 +501,7 @@ function updatechoropleth(csv,pop,attributes,changelegend,co2){
                 .attr("class","title")
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
-                .text( prefix +source + " Energy use by State in " + year + message);
+                .text( prefix +source + " Energy usage by State in " + year + message);
 
 
     window.map.updateChoropleth(dataset);
